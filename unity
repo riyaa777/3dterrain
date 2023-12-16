@@ -1,0 +1,52 @@
+using UnityEngine;
+
+public class TerrainGenerator : MonoBehaviour
+{
+    public Terrain terrain; // Reference to the Terrain object in your scene
+
+    [Range(1, 1000)]
+    public int terrainWidth = 100;
+    [Range(1, 1000)]
+    public int terrainLength = 100;
+    [Range(1, 100)]
+    public int terrainHeight = 40;
+    [Range(0.1f, 10f)]
+    public float hillIntensity = 1.0f;
+
+    void Start()
+    {
+        GenerateTerrain();
+    }
+
+    void GenerateTerrain()
+    {
+        terrain.terrainData = GenerateTerrain(terrain.terrainData);
+    }
+
+    TerrainData GenerateTerrain(TerrainData terrainData)
+    {
+        terrainData.heightmapResolution = terrainWidth + 1;
+        terrainData.size = new Vector3(terrainWidth, terrainHeight, terrainLength);
+
+        terrainData.SetHeights(0, 0, GenerateHeights());
+
+        return terrainData;
+    }
+
+    float[,] GenerateHeights()
+    {
+        float[,] heights = new float[terrainWidth, terrainLength];
+
+        for (int x = 0; x < terrainWidth; x++)
+        {
+            for (int z = 0; z < terrainLength; z++)
+            {
+                float xCoord = (float)x / terrainWidth * hillIntensity;
+                float zCoord = (float)z / terrainLength * hillIntensity;
+                heights[x, z] = Mathf.PerlinNoise(xCoord, zCoord);
+            }
+        }
+
+        return heights;
+    }
+}
